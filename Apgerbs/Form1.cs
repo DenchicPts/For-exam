@@ -101,12 +101,7 @@ namespace Apgerbs
             {
                 while (reader.Read())
                 {
-                    string type = reader["Type"].ToString();
-                    // Проверяем, был ли уже добавлен этот тип одежды в ComboBox
-                    if (!ClothType.Items.Contains(type))
-                    {
-                        ClothType.Items.Add(type); // Добавляем только новые значения Type в ComboBox
-                    }
+                    ClothType.Items.Add(reader["Type"].ToString()); 
                 }
             }
         }
