@@ -47,10 +47,41 @@ namespace Apgerbs
 
             while (reader.Read())
             {
-                BrandName.Items.Add(reader["BrandName"].ToString());
+                string encryptedBrandName = Decrypt(reader["BrandName"].ToString(), 2);
+                BrandName.Items.Add(encryptedBrandName);
             }
 
             reader.Close();
+        }
+
+        private  string Encrypt(string input, int shift)
+        {
+            string encrypted = "";
+
+            foreach (char c in input)
+            {
+                if (char.IsLetter(c))
+                {
+                    char shiftedChar = (char)(c + shift);
+                    if (!char.IsLetter(shiftedChar))
+                    {
+                        shiftedChar = (char)(c - (26 - shift)); // Circular shift to ensure the range A-Z or a-z
+                    }
+                    encrypted += shiftedChar;
+                }
+                else
+                {
+                    encrypted += c; // If the character is not a letter, add it as is
+                }
+            }
+
+            return encrypted;
+        }
+
+        // Method for decrypting a string using bit shift
+        private string Decrypt(string input, int shift)
+        {
+            return Encrypt(input, -shift); // Decryption is equivalent to encryption with a negative shift
         }
 
         private void openConnection()
@@ -58,34 +89,32 @@ namespace Apgerbs
             if (connection.State == ConnectionState.Closed)
             {
                 connection.Open();
-                MessageBox.Show("The connection is: " + connection.State.ToString());
             }
         }
 
 
         private void closeConnection()
         {
-            if (connection.State == ConnectionState.Closed) // need to change to Open
+            if (connection.State == ConnectionState.Closed)
             {
                 connection.Close();
-                MessageBox.Show("The connection is: " + connection.State.ToString());
             }
         }
 
         private void BrandName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selectedBrand = BrandName.SelectedItem.ToString();
+            string selectedBrand = Encrypt(BrandName.SelectedItem.ToString(),2);
 
-            // Разблокировать выбор типа одежды
+            // Unlock clothing type selection
             BrandName.Enabled = true;
 
             ClothType.Text = string.Empty;
-            // Загрузить типы одежды для выбранного бренда
+            // Load clothing types for the selected brand
             LoadClothTypes(selectedBrand);
         }
         private void LoadClothTypes(string brand)
         {
-            // Запрос для получения всех уникальных типов одежды на основе выбранного бренда из таблицы Brand
+            // Query to retrieve the path of the proportions image based on the selected brand, clothing type, and gender
             string query = @"SELECT DISTINCT ClothType.Type 
                      FROM Brand 
                      JOIN ClothType ON Brand.id_clothType = ClothType.id 
@@ -94,14 +123,14 @@ namespace Apgerbs
             SQLiteCommand command = new SQLiteCommand(query, connection);
             command.Parameters.AddWithValue("@brand", brand);
 
-            // Очищаем ComboBox перед добавлением новых значений
+            // Clear the ComboBox before adding new values
             ClothType.Items.Clear();
 
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    ClothType.Items.Add(reader["Type"].ToString()); 
+                    ClothType.Items.Add(reader["Type"].ToString());
                 }
             }
         }
@@ -113,48 +142,48 @@ namespace Apgerbs
 
         private void CheckButton_Click(object sender, EventArgs e)
         {
-            // Проверяем, был ли выбран тип одежды
             if (ClothType.SelectedItem == null)
             {
-                // Пользователь не выбрал тип одежды, показываем сообщение об ошибке
-                MessageBox.Show("Пожалуйста, выберите тип одежды перед проверкой.");
+                // User hasn't selected a clothing type, show error message
+                MessageBox.Show("Please select clothing type before checking.");
                 return;
             }
 
-            // Проверяем, был ли выбран пол
             if (!manRadioBut.Checked && !femaleRadioBut.Checked)
             {
-                // Пользователь не выбрал пол, показываем сообщение об ошибке
-                MessageBox.Show("Пожалуйста, выберите пол перед проверкой.");
+                // User hasn't selected a gender, show error message
+                MessageBox.Show("Please select gender before checking.");
                 return;
             }
 
-            // Получаем выбранный пол
+            // Get the selected gender
             string sex = manRadioBut.Checked ? "Male" : "Female";
 
-            // Получаем выбранный тип одежды
+            // Get the selected clothing type
             string clothType = ClothType.SelectedItem.ToString();
 
-            string brand = BrandName.SelectedItem.ToString();
-            // Выполняем запрос к базе данных для получения id_proportions
+            string brand = Encrypt(BrandName.SelectedItem.ToString(),2);
+            // Execute a database query to retrieve id_proportions
             string path = "Cache\\" + GetProportionsPath(brand, clothType, sex);
 
-            // Проверяем, было ли найдено id_proportions
+            // Check if id_proportions was found
             if (path != null)
             {
-                // Создаем новое окно Image и передаем в него путь к изображению
-                ImageWindow imageWindow = new ImageWindow(path, brand);
+                // Create a new Image window and pass the image path to it
+                ImageWindow imageWindow = new ImageWindow(path, Decrypt(brand,2));
                 imageWindow.Show();
             }
             else
             {
-                // Выводим сообщение об ошибке, если не удалось найти id_proportions
-                MessageBox.Show("Не удалось найти подходящую фотографию.");
+                // Display an error message if id_proportions was not found
+                MessageBox.Show("Could not find a suitable photo.");
             }
         }
         private string GetProportionsPath(string brand, string clothType, string sex)
         {
             string imagePath = null;
+            // Запрос для получения пути к изображению пропорций на основе выбранного бренда,
+            // типа одежды и пола из таблиц Proportions, ClothType и Brand
             string query = "SELECT Proportions.Path FROM Proportions " +
                            "INNER JOIN ClothType ON Proportions.id = ClothType.id_proportions " +
                            "INNER JOIN Brand ON ClothType.id = Brand.id_clothType " +
@@ -164,12 +193,14 @@ namespace Apgerbs
             {
                 connection.Open();
 
+                // Create a command to execute the database query
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@brand", brand);
                     command.Parameters.AddWithValue("@clothType", clothType);
                     command.Parameters.AddWithValue("@sex", sex);
 
+                    // Execute the query and retrieve the result
                     object result = command.ExecuteScalar();
                     if (result != null)
                     {
