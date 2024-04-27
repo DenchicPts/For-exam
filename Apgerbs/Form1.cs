@@ -93,14 +93,6 @@ namespace Apgerbs
         }
 
 
-        private void closeConnection()
-        {
-            if (connection.State == ConnectionState.Closed)
-            {
-                connection.Close();
-            }
-        }
-
         private void BrandName_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedBrand = Encrypt(BrandName.SelectedItem.ToString(),2);

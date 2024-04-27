@@ -33,6 +33,8 @@
             this.BrandName = new System.Windows.Forms.ComboBox();
             this.ClothType = new System.Windows.Forms.ComboBox();
             this.CheckButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // manRadioBut
@@ -92,18 +94,38 @@
             this.CheckButton.UseVisualStyleBackColor = true;
             this.CheckButton.Click += new System.EventHandler(this.CheckButton_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(40, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(64, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Brand name";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(31, 82);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(83, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Type of clothing";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(299, 450);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.CheckButton);
             this.Controls.Add(this.ClothType);
             this.Controls.Add(this.BrandName);
             this.Controls.Add(this.femaleRadioBut);
             this.Controls.Add(this.manRadioBut);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Apgerbs";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -117,6 +139,8 @@
         private System.Windows.Forms.ComboBox BrandName;
         private System.Windows.Forms.ComboBox ClothType;
         private System.Windows.Forms.Button CheckButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 
